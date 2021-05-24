@@ -808,5 +808,8 @@
   "Team Ranks": "Team Ranks",
   "Prizes": "Prizes",
   "Rules": "Rules",
-  "Entry": "Entry"
+  "Entry": "Entry",
+  "Ended %date%": "Ended %date%",
+  "Starts %date%": "Starts %date%",
+  "Ends %date%": "Ends %date%"
 }
