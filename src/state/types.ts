@@ -246,6 +246,15 @@ export interface PredictionsState {
   bets: BetData
 }
 
+// Settings
+
+export interface SettingsState {
+  data: {
+    gasPriceMultiplier: number
+    gasPrice: string
+  }
+}
+
 // Global state
 
 export interface State {
@@ -257,4 +266,5 @@ export interface State {
   profile: ProfileState
   teams: TeamsState
   collectibles: CollectiblesState
+  settings: SettingsState
 }

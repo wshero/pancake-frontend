@@ -21,7 +21,7 @@ import {
   fetchCakeVaultFees,
   setBlock,
 } from './actions'
-import { State, Farm, Pool, ProfileState, TeamsState, AchievementState, FarmsState } from './types'
+import { State, Farm, Pool, ProfileState, TeamsState, AchievementState, FarmsState, SettingsState } from './types'
 import { fetchProfile } from './profile'
 import { fetchTeam, fetchTeams } from './teams'
 import { fetchAchievements } from './achievements'
@@ -30,6 +30,8 @@ import { getCanClaim } from './predictions/helpers'
 import { transformPool } from './pools/helpers'
 import { fetchPoolsStakingLimitsAsync } from './pools'
 import { fetchFarmUserDataAsync, nonArchivedFarms } from './farms'
+import { getLocalStorageKey, initialState } from './settings/helpers'
+import { setSettings } from './settings'
 
 export const usePollFarmsData = (includeArchive = false) => {
   const dispatch = useAppDispatch()
@@ -467,4 +469,42 @@ export const useGetCollectibles = () => {
     tokenIds: data,
     nftsInWallet: Nfts.filter((nft) => identifiers.includes(nft.identifier)),
   }
+}
+
+// Settings
+
+export const useGlobalSettings = () => {
+  const { account } = useWeb3React()
+  const dispatch = useAppDispatch()
+
+  // Initialize user settings
+  useEffect(() => {
+    const getSettings = (): SettingsState['data'] => {
+      try {
+        const settingsFromLs = localStorage.getItem(getLocalStorageKey(account.toLowerCase()))
+
+        return settingsFromLs ? JSON.parse(settingsFromLs) : initialState.data
+      } catch (error) {
+        return initialState.data
+      }
+    }
+
+    const fetchSettings = async () => {
+      const userSettings = getSettings()
+      const web3 = getWeb3NoAccount()
+      const gasPrice = await web3.eth.getGasPrice()
+      const gasPriceBn = new BigNumber(gasPrice)
+
+      dispatch(
+        setSettings({
+          ...userSettings,
+          gasPrice: gasPriceBn.times(userSettings.gasPriceMultiplier).toString(),
+        }),
+      )
+    }
+
+    if (account) {
+      fetchSettings()
+    }
+  }, [account, dispatch])
 }
